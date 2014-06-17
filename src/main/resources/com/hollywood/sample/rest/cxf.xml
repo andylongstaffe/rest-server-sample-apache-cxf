@@ -1,0 +1,50 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xmlns:cxf="http://cxf.apache.org/core"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://cxf.apache.org/jaxrs  http://cxf.apache.org/schemas/jaxrs.xsd
+                        http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+	<cxf:bus>
+		<cxf:features>
+			<cxf:logging />
+		</cxf:features>
+	</cxf:bus>
+
+	<bean id="jsonProvider" class="org.codehaus.jackson.jaxrs.JacksonJsonProvider" />
+
+	<bean id="helloUserXmlWebService"
+		class="com.hollywood.sample.rest.server.xml.HelloUserXmlWebService" />
+	
+	<bean id="userDao" class="com.hollywood.sample.rest.server.dao.UserManagerMemoryDao"/>
+	
+	<bean id="userManagerService"
+		class="com.hollywood.sample.rest.server.json.UserManagerService">
+		<property name="userDao" ref="userDao"/>
+	</bean>
+
+	<jaxrs:server id="userRestfulWebServiceXml" address="/rest/xmlexample">
+		<jaxrs:serviceBeans>
+			<ref bean="helloUserXmlWebService" />
+		</jaxrs:serviceBeans>
+		<jaxrs:extensionMappings>
+			<entry key="xml" value="application/xml" />
+		</jaxrs:extensionMappings>
+	</jaxrs:server>
+
+	<jaxrs:server id="userManagerRest" address="/rest/usermanager">
+		<jaxrs:serviceBeans>
+			<ref bean="userManagerService" />
+		</jaxrs:serviceBeans>
+		<jaxrs:providers>
+			<ref bean='jsonProvider' />
+		</jaxrs:providers>
+	</jaxrs:server>
+
+</beans>
